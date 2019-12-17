@@ -42,6 +42,13 @@ class ChatThread extends Thread{
 		            id = br.readLine();
 		            broadcast(id + "님이 접속하셨습니다.");
 		            System.out.println("접속한 사용자의 아이디 : "+id);
+			    Object obj = hm.get(id);
+			    if(obj != null) {
+				    //pw = (PrintWriter)obj;
+				    pw.println("alreay exist id");
+				    pw.flush();
+				    return;
+			    }
 		            synchronized (hm) {
 				    hm.put(this.id, pw);
 			    }
@@ -80,18 +87,23 @@ class ChatThread extends Thread{
 		}
 	}
 	public void sendmsg(String msg) {
-		int start = msg.indexOf(" ") + 1;
-		int end = msg.indexOf(" ",start);
-	            if(end != -1) {
-		            String to = msg.substring(start, end);
-		            String msg2 = msg.substring(end +1);
-		            Object obj = hm.get(to);
-		            if(obj != null) {
-			                PrintWriter pw = (PrintWriter)obj;
-			                    pw.println(id + "님이 다음의 귓속말을 보내셨습니다. : " + msg2);
-			                    pw.flush();
-			            }
-		    }
+		int idStart = msg.indexOf(" ") + 1;
+		int idEnd = msg.indexOf(" ",idStart);
+		if(idEnd != -1) {
+			String to = msg.substring(idStart, idEnd);
+			String msg2 = msg.substring(idEnd +1);
+			Object obj = hm.get(to);
+			if(obj != null) {
+				PrintWriter pw = (PrintWriter)obj;
+				pw.println(id + "님이 다음의 귓속말을 보내셨습니다. : " + msg2);
+				pw.flush();
+			}
+		}else if(idEnd == -1){
+			Object obj = hm.get(id);
+			PrintWriter pw = (PrintWriter)obj;
+			pw.println("귓속말 실패 하였습니다. you should check the arguments.");
+			pw.flush();
+		}
 	}
 	public void broadcast(String msg) {
 		synchronized (hm) {
@@ -103,5 +115,6 @@ class ChatThread extends Thread{
 				pw.flush();
 			}
 		}
+		System.out.println(msg);
 	}
 }
