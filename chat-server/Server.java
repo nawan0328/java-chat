@@ -32,44 +32,50 @@ class ChatThread extends Thread{
 	private String id;
 	private BufferedReader br;
 	private HashMap<String, Object> hm;
-	private boolean initFlag = false;
+	private boolean duplFlag = true;
+
 	public ChatThread(Socket sock, HashMap<String,Object> hm) {
+
 		this.sock = sock;
 		this.hm = hm;
 		    try {
 		            PrintWriter pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
 		            br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 		            id = br.readLine();
-		            broadcast(id + "님이 접속하셨습니다.");
-		            System.out.println("접속한 사용자의 아이디 : "+id);
 			    Object obj = hm.get(id);
 			    if(obj != null) {
-				    //pw = (PrintWriter)obj;
-				    pw.println("alreay exist id");
+				    pw.println("already exist id");
 				    pw.flush();
+				    System.out.println("중복아이디 퇴장처리 : "+id);
+				    duplFlag = false;
 				    return;
 			    }
 		            synchronized (hm) {
 				    hm.put(this.id, pw);
 			    }
-			    initFlag = true;
+		            broadcast(id + "님이 접속하셨습니다.");
+		            System.out.println("접속한 사용자의 아이디 : "+id);
+			    duplFlag = true;
 		    } catch (Exception e) {
 			    e.printStackTrace();
 		    }
 	}
 	public void run() {
-		try {
-			String line = null;
-			while((line = br.readLine()) != null) {
-				if(line.equals("/quit")) {
-					break;
-				}
-				if(line.indexOf("/to") == 0) {
-					sendmsg(line);
-				}else {
-					broadcast(id+" : "+line);
-				}
+			if (duplFlag == false) {//중복 ID 체크 후 메서드 종료
+				return;
 			}
+		try {
+				String line = null;
+				while((line = br.readLine()) != null) {
+					if(line.equals("/quit")) {
+						break;
+					}
+					if(line.indexOf("/to") == 0) {
+						sendmsg(line);
+					}else {
+						broadcast(id+" : "+line);
+					}
+				}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally {
