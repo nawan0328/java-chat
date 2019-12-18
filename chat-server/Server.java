@@ -44,7 +44,7 @@ class ChatThread extends Thread{
 		            id = br.readLine();
 			    Object obj = hm.get(id);
 			    if(obj != null) {
-				    pw.println("already exist id");
+				    pw.println("/quit already exist id");
 				    pw.flush();
 				    System.out.println("중복아이디 퇴장처리 : "+id);
 				    duplFlag = false;
@@ -101,7 +101,7 @@ class ChatThread extends Thread{
 			Object obj = hm.get(to);
 			if(obj != null) {
 				PrintWriter pw = (PrintWriter)obj;
-				pw.println(id + "님이 다음의 귓속말을 보내셨습니다. : " + msg2);
+				pw.println(id + "님이 다음의 귓속말을 보냈습니다. : " + msg2);
 				pw.flush();
 			}
 		}else if(idEnd == -1){

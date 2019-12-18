@@ -15,7 +15,7 @@ public class Client {
 		Socket sock = null;
 		BufferedReader br = null;
 		PrintWriter pw = null;
-		boolean endflag = false;
+		//boolean endflag = false;
 		try {
 			sock = new Socket(args[1], 1001);//아아디,포트
 			pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
@@ -31,8 +31,15 @@ public class Client {
 				pw.println(line);
 				pw.flush();
 				if(line.equals("/quit")) {
-					endflag = true;
+					//endflag = true;
 					break;
+				}
+				if(sock.isConnected() == true && sock.getKeepAlive() == false) {
+					sock.setKeepAlive(true);
+					if(sock.getKeepAlive() == false) { // Socket 연결이 끊어 졌는지 확인
+						System.out.println("KeepAlive : " + sock.getKeepAlive());
+						break;
+					}
 				}
 			}
 			System.out.println("클라이언트 접속 종료");
@@ -68,6 +75,9 @@ class InputThread extends Thread{
 			    String line = null;
 			    while((line = br.readLine()) != null) {
 				    System.out.println(line);
+				    if (line.indexOf("/quit") == 0){
+					    break;
+				    }
 			    }
 		    } catch (Exception e) {
 			    e.printStackTrace();
